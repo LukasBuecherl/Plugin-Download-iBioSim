@@ -256,12 +256,9 @@ def run():
         
         output = None
 
-        localDirForTesting = r"/home/tom-stoughton"
-        reb2sacDir = localDirForTesting + r"/Biosimulators_iBioSim/Dependencies/reb2sac/src:"
-        os.environ["BIOSIM"] = localDirForTesting + r"/iBioSim"
-        os.environ["PATH"] = reb2sacDir + os.environ["BIOSIM"] + r"/bin:" + os.environ["BIOSIM"] + r"/lib:" + os.environ["PATH"]
+        reb2sacDir = r"full/path/to/reb2sac/src:"
+        os.environ["PATH"] = reb2sacDir + os.environ["PATH"]
         # os.system("echo $PATH")
-        os.environ["LD_LIBRARY_PATH"] = os.environ["BIOSIM"] + r"/lib:"
 
         # check if the file is a combine archive or SBML top module file
         if pathToInFile.endswith('.zip') or pathToInFile.endswith('topModule.xml'):
