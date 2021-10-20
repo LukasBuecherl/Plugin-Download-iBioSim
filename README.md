@@ -26,7 +26,7 @@ Send a GET request or open a browser to http://localhost:5000/status to check if
 # HTTP Post Request Parameters (Postman)
 
 When sending a POST request to the app, parameters for simulation or conversion are required in the query parameters of the request.
-Without these parameters, iBioSim won't have any arguments to run the conversion or analysis jar files with, so it will likely error out, with the exception of running analysis on a COMBINE Archive.
+Without these parameters, iBioSim won't have any arguments to run the conversion or analysis jar files with, so it will likely error out (with the exception of running analysis on a COMBINE Archive).
 
 ## Analysis (For COMBINE Archives)
 
@@ -87,10 +87,10 @@ Argument Keys and Values should be in the following form:
 | main_file_name | file_name.xml | The name of the file that will be produced to hold the result of the main SBOL file, if SBOL file diff was selected | -mf |
 | allow_noncompliant_uri | (leave empty) | allow non-compliant URIs | -n |
 | no_output | (leave empty) | indicate no output file to be generated from validation. Instead, print result to console/command line. | -no |
-| prefix | <URIPrefix> | default URI prefix to set an SBOLDocument | -p |
+| prefix | `<URIPrefix>` | default URI prefix to set an SBOLDocument | -p |
 | sbml_ref | full-path-to-SBML | The full path of external SBML files to be referenced in the SBML2SBOL conversion | -rsbml |
 | sbol_ref | full-path-to-SBOL | The full path of external SBOL files to be referenced in the SBML2SBOL conversion | -rsbol |
-| select | <topLevelURI> | select only this object and those it references | -s |
+| select | `<topLevelURI>` | select only this object and those it references | -s |
 | types_in_uri | (leave empty) | uses types in URIs | -t |
 | mark_version | number | mark version of data objects created during conversion | -v |
 | repository | "https://www.link-to-repository.dummy" | The specified synbiohub repository the user wants VPR model generator to connect to | -r |
