@@ -57,11 +57,9 @@ def exec_conversion_jar(tempDir, sbolFile, b, cf, d, e, esf, f, i, l, mf, n, o, 
     if not no == None:
         cmd += '-no '
     else:
-        
         outputDir = os.path.join(tempDir,'modules/')
-        'mkdir ' + outputDir
         os.system('mkdir ' + outputDir)
-        cmd += '-o "' + outputDir + 'topModule.xml" '
+        cmd += '-o ' + outputDir + 'collection.xml '
 
     print("Running: " + cmd + sbolFile)
     
@@ -258,8 +256,11 @@ def run():
         
         output = None
 
-        os.environ["BIOSIM"] = r"/iBioSim"
-        os.environ["PATH"] = os.environ["BIOSIM"]+r"/bin:"+os.environ["BIOSIM"]+r"/lib:"+os.environ["PATH"]
+        localDirForTesting = r"/home/tom-stoughton"
+        reb2sacDir = localDirForTesting + r"/Biosimulators_iBioSim/Dependencies/reb2sac/src:"
+        os.environ["BIOSIM"] = localDirForTesting + r"/iBioSim"
+        os.environ["PATH"] = reb2sacDir + os.environ["BIOSIM"] + r"/bin:" + os.environ["BIOSIM"] + r"/lib:" + os.environ["PATH"]
+        # os.system("echo $PATH")
         os.environ["LD_LIBRARY_PATH"] = os.environ["BIOSIM"] + r"/lib:"
 
         # check if the file is a combine archive or SBML top module file
@@ -272,11 +273,5 @@ def run():
         elif pathToInFile.endswith('.xml'):
             # Run conversion on the SBOL file
             print('Running conversion!')
-            return make_response('Conversion is still in testing!', 202)
-            '''
             output = conversion(tempDir, argsDict, pathToInFile)
             return send_file(output, as_attachment=True, attachment_filename='output.zip')
-            '''
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080)
