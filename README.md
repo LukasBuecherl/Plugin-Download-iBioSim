@@ -83,7 +83,7 @@ Argument Keys and Values should be in the following form:
 | export_single_file | (leave empty) | export SBML hierarchical models in a single output file | -esf |
 | cont_first_error | (leave empty) | continue after first error | -f |
 | allow_incomplete | (leave empty) | allow SBOL document to be incomplete | -i |
-| language | SBOL1/SBOL2/GenBank/FASTA/SBML | specifies language for output (default=SBOL2). To output FASTA or GenBank, no SBOL default URI prefix is needed. | -l |
+| language | SBOL1, SBOL2, GenBank, FASTA, SBML | specifies language for output (default=SBOL2). To output FASTA or GenBank, no SBOL default URI prefix is needed. | -l |
 | main_file_name | file_name.xml | The name of the file that will be produced to hold the result of the main SBOL file, if SBOL file diff was selected | -mf |
 | allow_noncompliant_uri | (leave empty) | allow non-compliant URIs | -n |
 | no_output | (leave empty) | indicate no output file to be generated from validation. Instead, print result to console/command line. | -no |
