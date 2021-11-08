@@ -5,13 +5,15 @@ import os, zipfile, tempfile
 
 app = Flask(__name__)
 
-def exec_conversion_jar(tempDir, sbolFile, b, cf, d, e, esf, f, i, l, mf, n, o, no, oDir, p, rsbml, rsbol, s, t, v, r, env, Cello):
+def exec_conversion_jar(tempDir, sbolFile, package, b, cf, d, e, esf, f, i, l, mf, n, no, oDir, p, rsbml, rsbol, s, t, v, r, env, Cello):
     # Execute the conversion jar on the inputted SBOL file
 
     if not os.path.isfile(sbolFile):
         print('Wrong file type')
         raise FileNotFoundError("File does not exist: {}".format(sbolFile))
     
+    outputDir = ''
+
     cmd = r"java -jar iBioSim/conversion/target/iBioSim-conversion-3.1.0-SNAPSHOT-jar-with-dependencies.jar "
     # add args to command
     if not b == None:
@@ -64,12 +66,20 @@ def exec_conversion_jar(tempDir, sbolFile, b, cf, d, e, esf, f, i, l, mf, n, o, 
     print("Running: " + cmd + sbolFile)
     
     os.system(cmd + sbolFile)
-
-    pathToZip = os.path.join(tempDir,'out.zip')
     print('Conversion complete, collecting output!')
-    z = zipfile.ZipFile(pathToZip, 'w')
-    recursiveZipOutputFiles(tempDir, z)
-    return pathToZip
+    if package:
+        print('Collecting to zip...')
+        pathToZip = os.path.join(tempDir,'out.zip')
+        z = zipfile.ZipFile(pathToZip, 'w')
+        recursiveZipOutputFiles(tempDir, z)
+        return pathToZip
+    else:
+        print('Returning topModule file')
+        for f in os.listdir(outputDir):
+            if f.endswith('topModule.xml'):
+                return os.path.join(outputDir, f)
+        return ''
+
 
 # From Biosimulators_iBioSim
 
@@ -118,8 +128,7 @@ def exec_combine_archive(tempDir, archive_file, out_dir, directory, properties, 
     print('Analysis complete, collecting output!')
     pathToZip = os.path.join(tempDir,'out.zip')
     z = zipfile.ZipFile(pathToZip, 'w')
-    recursiveZipOutputFiles(out_dir, z)
-
+    recursiveZipOutputFiles(tempDir, z)
     return pathToZip
 
 def recursiveZipOutputFiles(path, zipf):
@@ -176,9 +185,9 @@ def analysis(tempDir, argsDict, pathToInFile):
     print('Done. Extracted file to: ' + filePath.__str__())
     return exec_combine_archive(tempDir, filePath, dirToArchive, argsDict['projectDir'], argsDict['props'], argsDict['initTime'],argsDict['limTime'], argsDict['outTime'], argsDict['pInterval'], argsDict['minStep'],argsDict['maxStep'], argsDict['absErr'], argsDict['relErr'], argsDict['seed'], argsDict['runs'], argsDict['sim'])
 
-def conversion(tempDir, argsDict, pathToInFile):
+def conversion(tempDir, argsDict, pathToInFile, package):
     # call conversion jar with arguments from HTTP request
-    return exec_conversion_jar(tempDir, pathToInFile, argsDict['b'], argsDict['cf'], argsDict['d'], argsDict['e'], argsDict['esf'], argsDict['f'], argsDict['i'], argsDict['l'], argsDict['mf'], argsDict['n'], argsDict['o'], argsDict['no'], argsDict['oDir'], argsDict['p'], argsDict['rsbml'], argsDict['rsbol'], argsDict['s'], argsDict['t'], argsDict['v'], argsDict['r'], argsDict['env'], argsDict['Cello'])
+    return exec_conversion_jar(tempDir, pathToInFile, package, argsDict['b'], argsDict['cf'], argsDict['d'], argsDict['e'], argsDict['esf'], argsDict['f'], argsDict['i'], argsDict['l'], argsDict['mf'], argsDict['n'], argsDict['no'], argsDict['oDir'], argsDict['p'], argsDict['rsbml'], argsDict['rsbol'], argsDict['s'], argsDict['t'], argsDict['v'], argsDict['r'], argsDict['env'], argsDict['Cello'])
 
 # Start API
 @app.route('/status', methods=['GET', 'POST'])
