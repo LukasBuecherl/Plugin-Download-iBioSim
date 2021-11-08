@@ -23,7 +23,7 @@ For reb2sac, follow instructions to clone and build in any directory on your mac
 
 Then, edit path variables in app.py:
 
- - At line 265, change the path to the full path of your reb2sac directory, ending with '.../reb2sac/src:'
+ - At line 274, change the path to the full path of your reb2sac directory, ending with '.../reb2sac/src:'
 
 
 Navigate to the folder path with app.py in the terminal and run:
