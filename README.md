@@ -9,11 +9,22 @@ Make sure you have Python Flask installed. For Python3, use:
 
 ### Note: Must be run using a Linux subsystem
 
-To run locally without using a Docker container, first you must change the path variables in app.py:
+# Set-up Instructions
 
- - At line 259, change the path to the full path of your reb2sac directory, ending with '.../reb2sac/src:'
+To run locally without using a Docker container, first you must have iBioSim and reb2sac built on your machine.
 
-Copy iBioSim into the working directory with app.py.
+For iBioSim copy a built version of iBioSim into the working directory with app.py, or follow instructions to build iBioSim from GitHub:
+
+1. Clone iBioSim into the bioSimPortal directory (from MyersResearchGroup/iBioSim)
+2. Change your working directory to .../bioSimPortal/iBioSim (run 'cd iBioSim')
+3. Run 'mvn clean package -Dmaven.javadoc.skip=true -Dmaven.test.skip=true'
+
+For reb2sac, follow instructions to clone and build in any directory on your machine (from MyersResearchGroup/reb2sac)
+
+Then, edit path variables in app.py:
+
+ - At line 265, change the path to the full path of your reb2sac directory, ending with '.../reb2sac/src:'
+
 
 Navigate to the folder path with app.py in the terminal and run:
 
