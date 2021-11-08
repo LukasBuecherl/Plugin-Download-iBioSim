@@ -118,8 +118,6 @@ def exec_combine_archive(tempDir, archive_file, out_dir, directory, properties, 
     print('Analysis complete, collecting output!')
     pathToZip = os.path.join(tempDir,'out.zip')
     z = zipfile.ZipFile(pathToZip, 'w')
-    if out_dir == None:
-        out_dir = '.'
     recursiveZipOutputFiles(out_dir, z)
 
     return pathToZip
@@ -166,12 +164,15 @@ def analysis(tempDir, argsDict, pathToInFile):
         filePath = pathToInFile
         # check for args
         if argsDict['sim'] == None:
-            print('Error: must specify simulation type for SBML analysis')
-            return(make_response('Error: must specify simulation type for SBML analysis', 202))
+            print('No simulation type given, defaulting to jode')
+            argsDict['sim'] = 'jode'
         if argsDict['limTime'] == None:
-            print('Error: must specify time limit for SBML analysis.')
-            return(make_response('Error: must specify time limit for SBML analysis.', 202))
-
+            print('No time limit given, defaulting to 250')
+            argsDict['limTime'] = '250'
+        if argsDict['runs'] == None:
+            print('No run count given, defaulting to 1')
+            argsDict['runs'] = '1'
+    
     print('Done. Extracted file to: ' + filePath.__str__())
     return exec_combine_archive(tempDir, filePath, dirToArchive, argsDict['projectDir'], argsDict['props'], argsDict['initTime'],argsDict['limTime'], argsDict['outTime'], argsDict['pInterval'], argsDict['minStep'],argsDict['maxStep'], argsDict['absErr'], argsDict['relErr'], argsDict['seed'], argsDict['runs'], argsDict['sim'])
 
@@ -196,6 +197,9 @@ def run():
     # Get cmd line arguments from HTTP request parameters
     # NOTE: -o argument is not needed for analysis or conversion on Dockerized version of this app
     argsDict = {
+        # Argument for: should the API run analysis, conversion, or conversion and then analysis
+        'runType': request.args.get('execute'),
+
         # Analysis arguments
         'projectDir': request.args.get('directory'),
         'props': request.args.get('properties'),
@@ -236,10 +240,10 @@ def run():
         'Cello': request.args.get('cello')
     }
 
-    # Sanitize path arguments
+    # Sanitize parameters
     for key in argsDict:
         if not argsDict[key] == None:
-            argsDict[key] = str(argsDict[key]).replace('-','/')
+            argsDict[key] = str(argsDict[key])
 
     # Get archive file from HTTP request body
     f = None
@@ -248,6 +252,8 @@ def run():
         print('Error: Expected input file, none found')
         return(make_response('Error: Expected input file, none found', 202))
     f = request.files['file']
+
+    run_type = argsDict['runType']
 
     # Save file locally
     with tempfile.TemporaryDirectory() as tempDir:
@@ -260,15 +266,45 @@ def run():
         os.environ["PATH"] = reb2sacDir + os.environ["PATH"]
         # os.system("echo $PATH")
 
-        # check if the file is a combine archive or SBML top module file
-        if pathToInFile.endswith('.zip') or pathToInFile.endswith('topModule.xml'):
-            # Extract zip file contents and find omex file
+        if run_type == 'conversion':
+            # run conversion
+            print('Running conversion!')
+            output = conversion(tempDir, argsDict, pathToInFile, package=True)
+            return send_file(output, as_attachment=True, attachment_filename='conversion_output.zip')
+        elif run_type == 'analysis':
+            # run analysis
             print('Running analysis!')
             output = analysis(tempDir, argsDict, pathToInFile)
-            return send_file(output, as_attachment=True, attachment_filename='output.zip')
-        # otherwise assume it is an SBOL file
-        elif pathToInFile.endswith('.xml'):
-            # Run conversion on the SBOL file
-            print('Running conversion!')
-            output = conversion(tempDir, argsDict, pathToInFile)
-            return send_file(output, as_attachment=True, attachment_filename='output.zip')
+            return send_file(output, as_attachment=True, attachment_filename='analysis_output.zip')
+        elif run_type == 'both':
+            # run conversion and then analysis
+            print('Running conversion and analysis!')
+            conv_output = conversion(tempDir, argsDict, pathToInFile, package=False)
+            if conv_output != '':
+                # copy topModule file to new working tempDir
+                with tempfile.TemporaryDirectory() as aTempDir:
+                    print(conv_output)
+                    print(aTempDir)
+                    os.system('cp ' + conv_output + ' ' + aTempDir)
+                    
+                    topMod = os.listdir(aTempDir)[0]
+                    pathToTopMod = os.path.join(aTempDir, topMod)
+
+                    output = analysis(aTempDir, argsDict, pathToTopMod)
+                    return send_file(output, as_attachment=True, attachment_filename='conversion_and_analysis_output.zip')
+            return make_response('Conversion failed', 202)
+            
+        else:
+            # run best guess based on input file type
+            # check if the file is a combine archive or SBML top module file
+            if pathToInFile.endswith('.zip') or pathToInFile.endswith('topModule.xml'):
+                # Extract zip file contents and find omex file
+                print('Running analysis!')
+                output = analysis(tempDir, argsDict, pathToInFile)
+                return send_file(output, as_attachment=True, attachment_filename='analysis_output.zip')
+            # otherwise assume it is an SBOL file
+            elif pathToInFile.endswith('.xml'):
+                # Run conversion on the SBOL file
+                print('Running conversion!')
+                output = conversion(tempDir, argsDict, pathToInFile)
+                return send_file(output, as_attachment=True, attachment_filename='conversion_output.zip')
