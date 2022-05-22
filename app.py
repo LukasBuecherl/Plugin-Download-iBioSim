@@ -43,8 +43,6 @@ def conv_and_sim():
         c_output = ex.exec(request, 'both', tempDir)
         if c_output == '':
             return make_response('An error occured during conversion', 202)
-        else:
-            return send_file(c_output, as_attachment=True, attachment_filename='sim_output.zip')
         
         # if conversion returns a zip file, send the archive straight to analysis
         print("Run analysis...", file=open('pylog.txt', 'a'))

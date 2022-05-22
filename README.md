@@ -85,6 +85,7 @@ Argument Keys and Values should be in the following form:
 | repository | "https://www.link-to-repository.dummy" | The specified synbiohub repository the user wants VPR model generator to connect to | -r |
 | environment | full-path-to-SBML-env-file | is the complete directory path of the environmental file to instantiate to your model. This only works when VPR model generator is used | -env |
 | cello | (leave empty) | This option is for dynamic modeling of Cello parts and parametrization | -Cello |
+| top_model_id | topModel_name | Set the ID of the top SBML model | -tmID |
 
 - Note: When the value of an argument's field is left blank, that key should still be checked if it needs to be included in the request.
 
